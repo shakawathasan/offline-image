@@ -2,20 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Offline Image Compressor</title>
+<title>Multi-Part Mini Binary Encoder</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h2>Offline Image Compressor & Decoder</h2>
 
-<h3>1️⃣ Compress & Encode</h3>
-<input type="file" id="upload" accept="image/*">
-<button id="compressBtn">Compress</button>
-<textarea id="compressed" placeholder="Mini binary will appear here"></textarea>
+<h2>Step 1: Upload Image & Get Full Binary</h2>
+<input type="file" id="upload"><br>
+<button id="encodeFullBtn">Get Full Binary</button><br>
+<textarea id="fullBinary" placeholder="Full binary will appear here"></textarea><br>
 
-<h3>2️⃣ Decode & Recover</h3>
-<button id="decodeBtn">Decode</button>
-<img id="output" alt="Recovered image">
+<h2>Step 2: Convert Full Binary → Multi-Part Short Codes</h2>
+<button id="toShortBtn">Convert to Short Codes</button><br>
+<textarea id="shortCodes" placeholder="Short codes (split into parts) will appear here"></textarea><br>
+
+<h2>Step 3: Decode Multi-Part Short Codes → Image</h2>
+<p>Paste multiple parts (one per line) here. The script will auto-join them.</p>
+<textarea id="decodeInput" placeholder="Paste all short code parts here"></textarea><br>
+<button id="decodeBtn">Decode</button><br>
+<img id="output" alt="Recovered Image">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="script.js"></script>
