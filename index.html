@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Offline Image HTML Generator</title>
+<title>Data URL Offline Image Generator</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h2>Offline Image HTML Generator</h2>
 
-<input type="file" id="upload"><br>
-<button id="generateBtn">Generate HTML File</button><br>
-<textarea id="preview" placeholder="Base64 preview will appear here"></textarea><br>
-<a id="downloadLink" href="#" download="offline-image.html" style="display:none">Download HTML File</a>
+<h2>Data URL Offline Image Generator</h2>
 
-<script src="script.js"></script>
+<input type="file" id="upload" accept="image/*"><br>
+<label>Max width/height (px): <input type="number" id="maxSize" value="200"></label><br>
+<label>Quality (0-1): <input type="number" id="quality" step="0.1" value="0.6"></label><br>
+<button id="generateBtn">Generate Data URL</button><br>
+<textarea id="dataUrl" placeholder="Your data URL will appear here"></textarea>
+
 </body>
+<script src="script.js"></script>
 </html>
