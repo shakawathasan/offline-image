@@ -1,16 +1,39 @@
-document.getElementById('generateBtn').addEventListener('click', () => {
+function resizeAndCompress(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = e => img.src = e.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+            canvas.width = img.width * ratio;
+            canvas.height = img.height * ratio;
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const type = file.type || 'image/png';
+            const base64 = canvas.toDataURL(type, quality);
+            resolve({ name: file.name, base64 });
+        };
+        img.onerror = err => reject(err);
+        reader.readAsDataURL(file);
+    });
+}
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
     const file = document.getElementById('upload').files[0];
-    if (!file) return alert("Select an image first!");
+    if (!file) return alert("Select an image!");
 
-    const reader = new FileReader();
-    reader.onload = e => {
-        const base64 = e.target.result; // already includes data:image/png;base64,...
+    const maxSize = parseInt(document.getElementById('maxSize').value) || 200;
+    const quality = parseFloat(document.getElementById('quality').value) || 0.6;
 
-        // Optional: show Base64 preview
-        document.getElementById('preview').value = base64;
+    try {
+        const { base64 } = await resizeAndCompress(file, maxSize, quality);
 
-        // Create offline HTML content
-        const htmlContent = `
+        // Create HTML page content
+        const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,20 +41,25 @@ document.getElementById('generateBtn').addEventListener('click', () => {
 <title>Offline Image</title>
 </head>
 <body>
-<h2>Offline Image</h2>
 <img src="${base64}" alt="Offline Image">
 </body>
 </html>
-`;
+        `.trim();
 
-        // Create blob and download link
-        const blob = new Blob([htmlContent], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById('downloadLink');
-        link.href = url;
-        link.style.display = 'inline-block';
-        link.innerText = "Download HTML File";
-    };
+        // Convert HTML to Base64
+        const htmlBase64 = btoa(unescape(encodeURIComponent(html)));
 
-    reader.readAsDataURL(file); // converts image to Base64 automatically
+        // Create final data URL
+        const dataUrl = `data:text/html;base64,${htmlBase64}`;
+
+        // Show in textarea
+        const textarea = document.getElementById('dataUrl');
+        textarea.value = dataUrl;
+
+        alert("Data URL generated! Copy and paste it in Messenger/WhatsApp (works for tiny images).");
+
+    } catch (err) {
+        console.error(err);
+        alert("Error generating Data URL");
+    }
 });
