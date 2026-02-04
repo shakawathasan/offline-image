@@ -2,27 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Multi-Part Mini Binary Encoder</title>
+<title>Offline Image HTML Generator</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<h2>Offline Image HTML Generator</h2>
 
-<h2>Step 1: Upload Image & Get Full Binary</h2>
 <input type="file" id="upload"><br>
-<button id="encodeFullBtn">Get Full Binary</button><br>
-<textarea id="fullBinary" placeholder="Full binary will appear here"></textarea><br>
+<button id="generateBtn">Generate HTML File</button><br>
+<textarea id="preview" placeholder="Base64 preview will appear here"></textarea><br>
+<a id="downloadLink" href="#" download="offline-image.html" style="display:none">Download HTML File</a>
 
-<h2>Step 2: Convert Full Binary → Multi-Part Short Codes</h2>
-<button id="toShortBtn">Convert to Short Codes</button><br>
-<textarea id="shortCodes" placeholder="Short codes (split into parts) will appear here"></textarea><br>
-
-<h2>Step 3: Decode Multi-Part Short Codes → Image</h2>
-<p>Paste multiple parts (one per line) here. The script will auto-join them.</p>
-<textarea id="decodeInput" placeholder="Paste all short code parts here"></textarea><br>
-<button id="decodeBtn">Decode</button><br>
-<img id="output" alt="Recovered Image">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
