@@ -12,11 +12,3 @@ textarea {
 button {
   margin-top: 10px;
 }
-
-a {
-  display: inline-block;
-  margin-top: 10px;
-  font-weight: bold;
-  color: blue;
-  text-decoration: underline;
-}
