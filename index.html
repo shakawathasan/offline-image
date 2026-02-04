@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Offline Image Compressor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Offline Image Compressor & Decoder</h2>
+
+<h3>1️⃣ Compress & Encode</h3>
+<input type="file" id="upload" accept="image/*">
+<button id="compressBtn">Compress</button>
+<textarea id="compressed" placeholder="Mini binary will appear here"></textarea>
+
+<h3>2️⃣ Decode & Recover</h3>
+<button id="decodeBtn">Decode</button>
+<img id="output" alt="Recovered image">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
