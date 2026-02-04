@@ -1,62 +1,77 @@
-// Base85 encode/decode
-function base85Encode(bytes) {
-    let chars = [];
-    let value = 0, count = 0;
-    for (let b of bytes) {
-        value = value * 256 + b;
-        count++;
-        if (count === 4) {
-            for (let i = 4; i >= 0; i--) {
-                chars.push(String.fromCharCode(Math.floor(value / (85**i)) % 85 + 33));
-            }
-            value = 0; count = 0;
-        }
+// --- Base91 Encode/Decode ---
+const ENCODING="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~\"";
+const table={};for(let i=0;i<ENCODING.length;i++)table[ENCODING[i]]=i;
+
+const b91Encode=(data)=>{
+  let n=0,b=0,out='';
+  for(let i=0;i<data.length;i++){
+    b|=data[i]<<n;n+=8;
+    while(n>13){
+      let v=b&8191;if(v>88){b>>=13;n-=13}else{v=b&16383;b>>=14;n-=14;}
+      out+=ENCODING[v%91]+ENCODING[Math.floor(v/91)];
     }
-    if (count > 0) {
-        for (let i = count; i < 4; i++) value *= 256;
-        for (let i = 4; i >= 0; i--) {
-            chars.push(String.fromCharCode(Math.floor(value / (85**i)) % 85 + 33));
-        }
-    }
-    return chars.join('');
+  }
+  if(n){out+=ENCODING[b%91];if(n>7||b>90)out+=ENCODING[Math.floor(b/91)];}
+  return out;
 }
 
-function base85Decode(str) {
-    let bytes = [];
-    for (let i = 0; i < str.length; i += 5) {
-        let chunk = str.slice(i, i+5);
-        let value = 0;
-        for (let j = 0; j < chunk.length; j++) {
-            value = value * 85 + (chunk.charCodeAt(j)-33);
-        }
-        for (let j = 3; j >=0; j--) {
-            bytes.push((value >> (8*j)) & 0xFF);
-        }
-    }
-    return new Uint8Array(bytes);
+const b91Decode=(str)=>{
+  let b=0,n=0,out=[];
+  for(let i=0;i<str.length;i++){
+    let c=table[str[i]];if(c===undefined)continue;
+    b|=c<<n;n+=i%2===0?13:14;
+    while(n>=8){out.push(b&255);b>>=8;n-=8;}
+  }
+  return new Uint8Array(out);
 }
 
-// Compress and encode
-document.getElementById('compressBtn').addEventListener('click', () => {
-    const file = document.getElementById('upload').files[0];
-    if (!file) return alert("Select an image first");
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const arrayBuffer = e.target.result;
-        const compressed = pako.deflate(new Uint8Array(arrayBuffer));
-        const encoded = base85Encode(compressed);
-        document.getElementById('compressed').value = encoded;
-        alert("Compressed! Text size: " + encoded.length);
-    };
-    reader.readAsArrayBuffer(file);
+// --- Step 1: Encode Full Binary ---
+let fullBinaryData=null;
+document.getElementById('encodeFullBtn').addEventListener('click',()=>{
+  const f=document.getElementById('upload').files[0];if(!f)return alert("Select image");
+  const r=new FileReader();
+  r.onload=e=>{
+    const data=new Uint8Array(e.target.result);
+    const compressed=pako.deflate(data,{level:9});
+    const fullBinary=b91Encode(compressed);
+    fullBinaryData=fullBinary; // save for step 2
+    document.getElementById('fullBinary').value=fullBinary;
+    alert("Full binary generated!");
+  };
+  r.readAsArrayBuffer(f);
 });
 
-// Decode and decompress
-document.getElementById('decodeBtn').addEventListener('click', () => {
-    const encoded = document.getElementById('compressed').value.trim();
-    if (!encoded) return alert("Paste mini binary first");
-    const compressed = base85Decode(encoded);
-    const decompressed = pako.inflate(compressed);
-    const blob = new Blob([decompressed], {type: 'image/png'});
-    document.getElementById('output').src = URL.createObjectURL(blob);
+// --- Step 2: Convert Full Binary → Multi-Part Short Codes ---
+document.getElementById('toShortBtn').addEventListener('click',()=>{
+  if(!fullBinaryData)return alert("Generate full binary first");
+
+  const binaryUint8=b91Decode(fullBinaryData);
+  const doubleCompressed=pako.deflate(binaryUint8,{level:9});
+  const short=b91Encode(doubleCompressed);
+
+  // Split into multiple parts (~5000 chars per part)
+  const partSize=5000;
+  let parts=[];
+  for(let i=0;i<short.length;i+=partSize) parts.push(short.slice(i,i+partSize));
+
+  document.getElementById('shortCodes').value=parts.join('\n');
+  alert("Short codes generated! Copy and share each part as needed.");
+});
+
+// --- Step 3: Decode Multi-Part Short Codes ---
+document.getElementById('decodeBtn').addEventListener('click',()=>{
+  const input=document.getElementById('decodeInput').value.trim();
+  if(!input)return alert("Paste short codes here");
+
+  try {
+    // Auto-join multiple parts
+    const short= input.split(/\r?\n/).join('');
+    const compressed=b91Decode(short);
+    const full=pako.inflate(compressed);
+    const imgData=pako.inflate(full);
+    document.getElementById('output').src=URL.createObjectURL(new Blob([imgData],{type:'image/png'}));
+  } catch(e) {
+    console.error(e);
+    alert("Invalid code or corrupted data!");
+  }
 });
