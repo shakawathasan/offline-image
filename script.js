@@ -1,65 +1,60 @@
-function resizeAndCompress(file, maxSize, quality) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        const reader = new FileReader();
+function compressImage(file, maxSize, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    const img = new Image();
 
-        reader.onload = e => img.src = e.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+    reader.onload = e => img.src = e.target.result;
+    img.onload = () => {
+      let w = img.width;
+      let h = img.height;
 
-            const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
-            canvas.width = img.width * ratio;
-            canvas.height = img.height * ratio;
+      const scale = Math.min(maxSize / w, maxSize / h, 1);
+      w *= scale;
+      h *= scale;
 
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const type = file.type || 'image/png';
-            const base64 = canvas.toDataURL(type, quality);
-            resolve({ name: file.name, base64 });
-        };
-        img.onerror = err => reject(err);
-        reader.readAsDataURL(file);
-    });
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
-document.getElementById('generateBtn').addEventListener('click', async () => {
-    const file = document.getElementById('upload').files[0];
-    if (!file) return alert("Select an image!");
+document.getElementById('generateBtn').onclick = async () => {
+  const file = document.getElementById('upload').files[0];
+  if (!file) return alert('Select an image');
 
-    const maxSize = parseInt(document.getElementById('maxSize').value) || 200;
-    const quality = parseFloat(document.getElementById('quality').value) || 0.6;
+  const maxSize = Number(document.getElementById('maxSize').value);
+  const quality = Number(document.getElementById('quality').value);
 
-    try {
-        const { base64 } = await resizeAndCompress(file, maxSize, quality);
+  const dataUrl = await compressImage(file, maxSize, quality);
+  document.getElementById('dataUrl').value = dataUrl;
 
-        // Create HTML page content
-        const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Offline Image</title>
-</head>
-<body>
-<img src="${base64}" alt="Offline Image">
-</body>
-</html>
-        `.trim();
+  document.getElementById('status').innerText =
+    `Length: ${dataUrl.length} characters`;
+};
 
-        // Convert HTML to Base64
-        const htmlBase64 = btoa(unescape(encodeURIComponent(html)));
+document.getElementById('selectBtn').onclick = () => {
+  const t = document.getElementById('dataUrl');
+  t.focus();
+  t.select();
+};
 
-        // Create final data URL
-        const dataUrl = `data:text/html;base64,${htmlBase64}`;
+document.getElementById('copyBtn').onclick = async () => {
+  const t = document.getElementById('dataUrl');
+  if (!t.value) return;
 
-        // Show in textarea
-        const textarea = document.getElementById('dataUrl');
-        textarea.value = dataUrl;
-
-        alert("Data URL generated! Copy and paste it in Messenger/WhatsApp (works for tiny images).");
-
-    } catch (err) {
-        console.error(err);
-        alert("Error generating Data URL");
-    }
-});
+  try {
+    await navigator.clipboard.writeText(t.value);
+    document.getElementById('status').innerText = 'Copied to clipboard ✅';
+  } catch {
+    t.select();
+    document.execCommand('copy');
+    document.getElementById('status').innerText = 'Copied (fallback) ✅';
+  }
+};
