@@ -10,11 +10,26 @@
 <h2>Data URL Offline Image Generator</h2>
 
 <input type="file" id="upload" accept="image/*"><br>
-<label>Max width/height (px): <input type="number" id="maxSize" value="200"></label><br>
-<label>Quality (0-1): <input type="number" id="quality" step="0.1" value="0.6"></label><br>
-<button id="generateBtn">Generate Data URL</button><br>
-<textarea id="dataUrl" placeholder="Your data URL will appear here"></textarea>
 
-</body>
+<label>
+  Max width/height (px):
+  <input type="number" id="maxSize" value="200">
+</label><br>
+
+<label>
+  Quality (0-1):
+  <input type="number" id="quality" step="0.1" value="0.6">
+</label><br>
+
+<button id="generateBtn">Generate Data URL</button><br><br>
+
+<textarea id="dataUrl" placeholder="Your data URL will appear here"></textarea><br>
+
+<button id="selectBtn">Select All</button>
+<button id="copyBtn">Copy</button>
+
+<p id="status"></p>
+
 <script src="script.js"></script>
+</body>
 </html>
