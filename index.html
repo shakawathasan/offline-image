@@ -1,37 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Data URL Offline Image Generator</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offline Imag</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h2>Data URL Offline Image Generator</h2>
+<div class="container">
+  <h1>Offline Img</h1>
+  <p class="subtitle">Compress and convert images locally</p>
 
-<input type="file" id="upload" accept="image/*"><br>
+  <div class="card">
+    <label class="file-label">
+      <input type="file" id="upload" accept="image/*" />
+      <span>Select Image</span>
+    </label>
 
-<label>
-  Max width/height (px):
-  <input type="number" id="maxSize" value="200">
-</label><br>
+    <div class="inputs">
+      <div class="field">
+        <label>Max size (px)</label>
+        <input type="number" id="maxSize" value="200" />
+      </div>
 
-<label>
-  Quality (0-1):
-  <input type="number" id="quality" step="0.1" value="0.6">
-</label><br>
+      <div class="field">
+        <label>Quality (0–1)</label>
+        <input type="number" id="quality" step="0.1" value="0.6" />
+      </div>
+    </div>
 
-<button id="generateBtn">Generate Data URL</button><br><br>
+    <button id="generateBtn" class="primary">
+      Generate Data URL
+    </button>
 
-<textarea id="dataUrl" placeholder="Your data URL will appear here"></textarea><br>
+    <textarea id="dataUrl" placeholder="Generated data URL appears here"></textarea>
 
-<button id="selectBtn">Select All</button>
-<button id="copyBtn">Copy</button>
+    <div class="actions">
+      <button id="selectBtn">Select All</button>
+      <button id="copyBtn">Copy</button>
+    </div>
 
-<p id="status"></p>
+    <p id="status"></p>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
 </html>
-
-
